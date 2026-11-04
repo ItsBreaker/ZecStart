@@ -14,7 +14,7 @@ export function render(root) {
   if (missing.length) {
     root.append(
       h("p", "Finish these lessons to earn your Shielded 101 badge:"),
-      missing.map((l) => h("a.card.lesson", { href: `#/${l.id}` },
+      ...missing.map((l) => h("a.card.lesson", { href: `#/${l.id}` },
         h("span.num", l.n), h("span", h("b", l.title)), h("span.arrow", "›"))),
     );
     return;
