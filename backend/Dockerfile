@@ -1,4 +1,4 @@
-# Shielded 101 wallet backend.
+# Zec Start wallet backend.
 #
 # Stage 1 builds zingo-cli from upstream zingolib, pinned to the commit the
 # app was developed against, with the mixnet compiled out and the

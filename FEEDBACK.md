@@ -1,6 +1,6 @@
 # Feedback
 
-What slowed us down while building Shielded 101, for the teams who maintain these tools. Times are from 4 Nov 2026 on the public testnet (`testnet.zec.rocks:443`).
+What slowed us down while building Zec Start, for the teams who maintain these tools. Times are from 4 Nov 2026 on the public testnet (`testnet.zec.rocks:443`).
 
 ## SDK or wallet tool: zingo-cli (zingolib, built from source with `nakednet-test-mode`)
 
@@ -26,6 +26,12 @@ What slowed us down while building Shielded 101, for the teams who maintain thes
 
 - `testnet.zcashexplorer.app` blocks scripted requests (as the brief notes), and for v6 transactions its page shows "Orchard Action transfers: 0" with no Ironwood section. A learner can read that as "nothing shielded happened".
 - CipherScan's public API (`api.testnet.cipherscan.app`) works from scripts and labels Ironwood actions correctly (`ironwoodActions`, `valueBalanceIronwoodZat`).
+
+- **Zexplorer** (`zexplorer.app/testnet/tx/<txid>`) showed "Transaction not found" for several of our transactions hours after they were confirmed (for example `253b6382…`, block 4582615, which CipherScan lists). We moved in-app links to `testnet.zcashexplorer.app`.
+
+## Node or indexer
+
+- **From Railway (US East), zingo-cli's long-lived connection to `testnet.zec.rocks` stalled after a while.** Sends failed with `Transmission failed … Timeout expired` and sync with `Please restart sync with sync run`, while the same server answered from elsewhere in about 2 s. Restarting the session (a fresh connection) fixed it, so the backend now does that automatically and retries once.
 
 ## Faucet
 

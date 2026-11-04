@@ -9,11 +9,11 @@ Sent through the app's API on 4 Nov 2026 at 19:51 IST, before the first browser 
 | | |
 |---|---|
 | Testnet txid | `e3d7a1be977345372a9a2de427451df8e3cf1c2362a49d97f42b316e6dbb84c8` |
-| Explorer | https://zexplorer.app/testnet/tx/e3d7a1be977345372a9a2de427451df8e3cf1c2362a49d97f42b316e6dbb84c8 |
+| Explorer | https://testnet.zcashexplorer.app/transactions/e3d7a1be977345372a9a2de427451df8e3cf1c2362a49d97f42b316e6dbb84c8 (also [Zexplorer](https://zexplorer.app/testnet/tx/e3d7a1be977345372a9a2de427451df8e3cf1c2362a49d97f42b316e6dbb84c8); its index missed some of our transactions) |
 | From | learner wallet, `utest1jrtdfnsedfrykawwmyhughdn0sqxancftlmaqlvj8nxcf6gszufqtalu39qzl26haep240h4fv0tljqw8h4mch7gwhyqraerwcrtlgeh` |
 | To | friend wallet, `utest15d60usk9h23jpddnnh9dhvtgujxqq022kld6mggdjq0r7u5phnhdqgh4q2e60qtuyela4kvep6qstg57px7kucufa69gfjsqacj4yy9j` |
 | Amount | 0.0005 TAZ |
-| Memo | `Thanks for lunch! (Shielded 101 test)` |
+| Memo | `Thanks for lunch! (Zec Start test)` |
 | Seen by the receiving wallet | 2 s after sending |
 | Confirmed | 17 s after sending (block 4582305) |
 

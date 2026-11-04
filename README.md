@@ -1,4 +1,4 @@
-# Shielded 101
+# Zec Start
 
 > Five hands-on lessons that take someone who has never made a shielded payment from public coins to a private payment, a private donation and a viewing-key audit. They run on the real Zcash testnet, on a phone, with nothing to install, in about ten minutes.
 
@@ -25,7 +25,7 @@
   - Checking the result: `testnet.zcashexplorer.app` *"blocks scripted requests"*. On that explorer, these transactions show "Orchard Action transfers: 0" and no Ironwood section (see [FEEDBACK.md](FEEDBACK.md)), which a newcomer can easily misread.
   - `[ADD: what people at the venue said, with their permission. Real conversations only.]`
 
-Shielded 101 removes all three barriers. We run practice wallets, pre-split into many notes so a room full of people can act at once. Every step gives you a real txid and an explorer link, and the app shows what the explorer can and can't see.
+Zec Start removes all three barriers. We run practice wallets, pre-split into many notes so a room full of people can act at once. Every step gives you a real txid and an explorer link, and the app shows what the explorer can and can't see.
 
 ## 2. What it does
 

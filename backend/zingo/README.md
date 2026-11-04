@@ -2,7 +2,7 @@
 
 Drive [zingo-cli](https://github.com/zingolabs/zingolib) from Node.js: one long-lived interactive session per wallet, a command queue, and parsers for its text output. No npm dependencies. It needs Node 20+, Python 3 and a zingo-cli binary.
 
-It was written for Shielded 101. It's useful to any Zcash testnet backend, bot or payment watcher that wants zingo-cli's Ironwood support without writing Rust.
+It was written for Zec Start. It's useful to any Zcash testnet backend, bot or payment watcher that wants zingo-cli's Ironwood support without writing Rust.
 
 ## Why a session wrapper?
 

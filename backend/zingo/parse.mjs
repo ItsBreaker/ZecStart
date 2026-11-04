@@ -39,7 +39,8 @@ export function parseTxids(text) {
   const ids = [...text.matchAll(/"txid": "([0-9a-f]{64})"/g)].map((m) => m[1]);
   const fromList = text.match(/"txids": \[\s*"([0-9a-f]{64})"/)?.[1];
   const txid = fromList ?? ids[0];
-  if (!txid) throw new Error(`no txid in output: ${text.slice(0, 200)}`);
+  // Never include the raw output: it could echo a memo into the logs.
+  if (!txid) throw new Error("zingo-cli returned no txid");
   return txid;
 }
 

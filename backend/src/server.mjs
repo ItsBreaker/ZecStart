@@ -1,4 +1,4 @@
-// Shielded 101 wallet backend: a small JSON API over custodial testnet
+// Zec Start wallet backend: a small JSON API over custodial testnet
 // wallets. No accounts and no database; state lives in memory.
 import http from "node:http";
 import { timingSafeEqual } from "node:crypto";

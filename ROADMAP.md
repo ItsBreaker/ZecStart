@@ -1,6 +1,6 @@
 # Roadmap
 
-General next steps for Shielded 101.
+General next steps for Zec Start.
 
 ## More activities
 
@@ -8,8 +8,7 @@ General next steps for Shielded 101.
 - **Diversified addresses:** give every contact a different address that all land in the same wallet.
 - **Selective disclosure:** share proof of one payment with one person, without sharing a whole viewing key.
 - **Moving between pools:** what is and isn't revealed when value crosses into or out of the shielded pool, and how timing and amounts can link transactions.
-- **Learner-to-learner payments:** a shareable link so two people on different phones can pay each other privately.
-- **Bring your own wallet everywhere:** a "use your own testnet wallet" path in every lesson, with guided setup.
+- **Bring your own wallet everywhere:** extend the Noir Wallet and ZIP-321 path from lessons 2 and 3 to every lesson, with guided setup.
 - Translations and an accessibility review.
 
 ## A self-hosted backend

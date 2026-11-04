@@ -1,6 +1,6 @@
 # Privacy
 
-Shielded 101 teaches privacy, so it should be clear about its own. Everything here refers to the Zcash **testnet**. TAZ has no monetary value.
+Zec Start teaches privacy, so it should be clear about its own. Everything here refers to the Zcash **testnet**. TAZ has no monetary value.
 
 ## What the app (your browser) stores and sends
 
