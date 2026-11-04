@@ -43,8 +43,9 @@ export async function explorerView(txid) {
 }
 
 function publicIo(io) {
+  // CipherScan reports transparent values as zatoshi strings.
   return {
-    address: io.address ?? io.addresses?.[0] ?? io.scriptPubKey?.addresses?.[0] ?? null,
-    valueZat: Number(io.valueZat ?? io.valueSat ?? (io.value != null ? Math.round(io.value * 1e8) : 0)),
+    address: io.address ?? null,
+    valueZat: Number(io.valueZat ?? io.value ?? 0),
   };
 }

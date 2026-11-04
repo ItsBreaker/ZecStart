@@ -101,10 +101,10 @@ function shieldProgress(live, { txid, shared }, depositTxid, ctx) {
           explorerLink(txid, "View the shield transaction ↗"),
           explorerLink(depositTxid, "View the public withdrawal ↗")),
         recap("What just happened", [
-          "The exchange's withdrawal was fully public: anyone can see your transparent address and its balance.",
+          "The withdrawal landed at a transparent address: anyone can see that address, the amount it received and its balance.",
           "Shielding spent those coins into the shielded pool. That one transaction still shows the transparent address it came from, and the amount entering the pool.",
           "From now on, payments from the shielded pool hide the sender, the receiver, the amount and the memo.",
-          "Tip: shielding at a different time, or a different amount, from your withdrawal makes them harder to link.",
+          "Tip: waiting a while before shielding, and not moving the same amount out again soon after, makes your transactions harder to link.",
         ]),
         nextButton(ctx.nextHref),
       );

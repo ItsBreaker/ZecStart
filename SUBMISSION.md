@@ -35,7 +35,7 @@ zingo-cli --chain testnet --server https://testnet.zec.rocks:443 --data-dir ./fr
 
 | Lesson | Testnet txid |
 |---|---|
-| 1. Shield your coins: public withdrawal | `PENDING` |
-| 1. Shield your coins: shielding transaction | `PENDING` |
+| 1. Shield your coins: public withdrawal (to `tmVggC6emwEjTY9k4PG9Yt7DJLpLByhUmd5`) | `d49a4cd3561049690e1da584f8178104c52f5c9245c1e445a49905d7a7f06137` |
+| 1. Shield your coins: shielding transaction | `ab90d6296158aac7e4dc836e75df247632fd7e0b7a921a534e83fd850d0287ea` |
 | 3. Donate privately | `PENDING` |
 | 4. Verify the fund: the fund's published viewing key | shown in the app (`GET /zcash/api/fund`) |
