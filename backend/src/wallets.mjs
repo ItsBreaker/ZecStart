@@ -77,7 +77,16 @@ export function cleanMemo(memo) {
 
 async function send(watcher, address, zats, memo) {
   const cmd = memo ? `quicksend ${address} ${zats} "${memo}"` : `quicksend ${address} ${zats}`;
-  const txid = parseTxids(await s.learner.run(cmd, 120_000));
+  const out = await s.learner.run(cmd, 120_000);
+  let txid;
+  try {
+    txid = parseTxids(out);
+  } catch (e) {
+    // A send that was built but not accepted keeps its note locked; release it.
+    const stuck = out.match(/[0-9a-f]{64}/)?.[0];
+    if (stuck) await s.learner.run(`remove_transaction ${stuck}`).catch(() => {});
+    throw e;
+  }
   tracked.set(txid, { watcher, sentAt: Date.now(), seenAt: null, confirmedAt: null, height: null });
   return txid;
 }

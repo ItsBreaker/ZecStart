@@ -117,7 +117,12 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200).end(JSON.stringify(result));
   } catch (e) {
     if (!e.friendly) console.error(`[${req.method} ${path}]`, e.message);
-    const message = e.friendly ? e.message : "The testnet didn't respond as expected. Please try again.";
+    let message = e.friendly ? e.message : "The testnet didn't respond as expected. Please try again.";
+    // Every spare coin is waiting for a confirmation; one frees up each block.
+    if (/insufficient balance/i.test(e.message) && path !== "/fund/try-spend") {
+      message = "Lots of learners right now: our practice wallet's coins are all in flight. Please retry in about 30 seconds.";
+      e.status = 503;
+    }
     res.writeHead(e.status ?? 502).end(JSON.stringify({ error: message }));
   }
 });
