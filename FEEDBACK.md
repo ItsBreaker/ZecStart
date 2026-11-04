@@ -13,6 +13,9 @@ What slowed us down while building Shielded 101, for the teams who maintain thes
 - **Received notes need several confirmations before they can be spent** (default `min_confirmations` is 3). For a demo that reuses funds quickly we set it to 1 with `settings min_confirmations 1`.
 - `help <command>` reports "Command quickshield not found" for some commands listed in `--help`.
 
+- **In a container, opening a wallet with a one-shot zingo-cli just after quitting the interactive session on the same data directory hung** (Railway, Debian bookworm). The same sequence works on macOS. We switched to doing everything through one long-lived session per wallet.
+- **Config placeholders bite.** Our own `.env.example` placeholder `ZINGO_BIN=/path/to/zingo-cli`, copied into Railway's variables, overrode the image's binary and surfaced only as `spawn ... ENOENT`. Now documented, with a clear start-up error.
+
 ## Timings we measured (zingo-cli, no mixnet)
 
 - Building and sending a shielded payment: about 2 s.
