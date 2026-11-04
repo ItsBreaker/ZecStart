@@ -15,20 +15,30 @@ function sessionId() {
   }
 }
 
-export async function api(path, body) {
+const UNREACHABLE = "Can't reach the testnet wallet service right now. Check your connection and try again.";
+
+export async function api(path, body, { timeoutMs = body ? 90_000 : 20_000 } = {}) {
   let res;
   try {
     res = await fetch(`${API_URL}${path}`, {
       method: body ? "POST" : "GET",
       headers: { "Content-Type": "application/json", "X-Learner-Session": sessionId() },
       body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch {
-    throw new Error("Can't reach the testnet wallet service. Check your connection and try again.");
+    throw new Error(UNREACHABLE);
   }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
+  if (!res.ok) throw new Error(data.error ?? (res.status >= 502 ? UNREACHABLE : "Something went wrong. Please try again."));
   return data;
+}
+
+/** Addresses and amounts, fetched once per page load; never blocks a lesson for long. */
+let infoPromise = null;
+export function getInfo() {
+  infoPromise ??= api("/info", undefined, { timeoutMs: 6000 }).catch(() => { infoPromise = null; return null; });
+  return infoPromise;
 }
 
 /** Poll a transaction until it is confirmed, calling onUpdate on every change. */

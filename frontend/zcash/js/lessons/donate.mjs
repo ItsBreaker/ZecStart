@@ -1,5 +1,5 @@
 // Lesson 3: a private donation to a fictional journalist's fund.
-import { api, watchTx } from "../api.mjs";
+import { api, getInfo, watchTx } from "../api.mjs";
 import { markDone } from "../progress.mjs";
 import { track } from "../analytics.mjs";
 import { h, zec, runAction, timeline, chime, explorerLink, recap, tip, nextButton } from "../ui.mjs";
@@ -9,7 +9,7 @@ import { ownWalletPanel } from "./own-wallet.mjs";
 export const FUND_NAME = "The Lantern Fund";
 
 export async function render(root, ctx) {
-  const info = await api("/info").catch(() => null);
+  const info = await getInfo();
   const choices = info?.amounts.donate ?? [20_000, 50_000, 100_000];
   let zats = choices[1];
 

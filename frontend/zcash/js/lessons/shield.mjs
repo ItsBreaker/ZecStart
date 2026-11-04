@@ -1,6 +1,6 @@
 // Lesson 1: coins arrive at a public (transparent) address, then the learner
 // shields them into the shielded pool.
-import { api, watchTx } from "../api.mjs";
+import { api, getInfo, watchTx } from "../api.mjs";
 import { addressUrl } from "../config.mjs";
 import { markDone } from "../progress.mjs";
 import { track } from "../analytics.mjs";
@@ -10,7 +10,7 @@ import { explorerData } from "./common.mjs";
 const kv = (k, v, cls = "") => h("div.kv", h("span", k), h(`b${cls}`, v));
 
 export async function render(root, ctx) {
-  const info = await api("/info").catch(() => null);
+  const info = await getInfo();
   const amount = info?.amounts.withdraw ?? 100_000;
   const taddr = info?.addresses.learnerTransparent ?? "";
 

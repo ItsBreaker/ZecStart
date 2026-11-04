@@ -1,5 +1,5 @@
 // Lesson 2: a shielded payment with an encrypted memo.
-import { api, watchTx } from "../api.mjs";
+import { api, getInfo, watchTx } from "../api.mjs";
 import { markDone, getDone } from "../progress.mjs";
 import { track } from "../analytics.mjs";
 import { txUrl } from "../config.mjs";
@@ -10,7 +10,7 @@ import { ownWalletPanel } from "./own-wallet.mjs";
 export async function render(root, ctx) {
   // Arriving through a friend's invite link (#/friend?invite=s101-xxxx).
   const invite = new URLSearchParams(location.hash.split("?")[1] ?? "").get("invite")?.match(/^s101-[a-z0-9]{4,10}$/)?.[0];
-  const info = await api("/info").catch(() => null);
+  const info = await getInfo();
   const amount = info?.amounts.friend ?? 50_000;
 
   const envelope = h("span.token", "✉️");
