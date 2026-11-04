@@ -1,6 +1,6 @@
 # Zec Start
 
-> Five hands-on lessons that take someone who has never made a shielded payment from public coins to a private payment, a private donation and a viewing-key audit. They run on the real Zcash testnet, on a phone, with nothing to install, in about ten minutes.
+> Five hands-on lessons that take someone who has never made a shielded payment from public coins to a private payment, a private donation and a viewing-key audit. They run on the real Zcash testnet, on a phone or computer, with nothing to install, in about ten minutes.
 
 | | |
 |---|---|
@@ -44,7 +44,7 @@ Optional paths: **"Use your own testnet wallet"** (Noir Wallet's testnet extensi
 ## 3. Try it in 5 minutes
 
 **Without installing anything:**
-1. Open https://zecstart.jayden-3af.workers.dev/zcash/ on a phone.
+1. Open https://zecstart.jayden-3af.workers.dev/zcash/ on a phone or computer.
 2. Tap **Start lesson 1**, or go straight to lesson 2: type a memo and tap **Send privately**.
 3. Within about 20 s you'll see ✅ and your memo, decrypted by your friend's wallet, next to what the explorer sees. Tap the explorer link to check the txid yourself.
 
