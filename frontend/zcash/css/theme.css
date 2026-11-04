@@ -1,36 +1,51 @@
-/* Design tokens, fonts and shared motion for Shielded 101. */
+/* Design tokens, fonts and shared motion for Shielded 101.
+   Visual language: white and brand purple (#5e00b2), a soft lavender
+   gradient background, Inter Black headings with purple highlights. */
 
 @font-face { font-family: "Inter"; font-weight: 400; font-display: swap; src: url("../fonts/inter-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "Inter"; font-weight: 600; font-display: swap; src: url("../fonts/inter-latin-600-normal.woff2") format("woff2"); }
 @font-face { font-family: "Inter"; font-weight: 800; font-display: swap; src: url("../fonts/inter-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 900; font-display: swap; src: url("../fonts/inter-latin-900-normal.woff2") format("woff2"); }
 @font-face { font-family: "Alegreya SC"; font-weight: 700; font-display: swap; src: url("../fonts/alegreya-sc-latin-700-normal.woff2") format("woff2"); }
 
 .s101 {
-  --bg: #0a0a0a;
-  --card: rgba(22, 22, 22, 0.8);
-  --card-solid: #161616;
-  --border: rgba(255, 255, 255, 0.1);
-  --hover: rgba(255, 255, 255, 0.05);
-  --muted: #888;
-  --text: #ededed;
-  --accent: #ed7513;
-  --green: rgb(27, 97, 0);
-  --ok: #4ade80;
   --brand: #5e00b2;
   --brand-light: #7b2fd6;
+  --brand-dark: #4a0090;
   --brand-accent: #7c3aed;
-  --danger: #f87171;
+  --bg-gradient: linear-gradient(135deg, #e9d5ff 0%, #f3e8ff 25%, #faf5ff 50%, #ffffff 100%);
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --tint: #faf5ff;          /* purple-50 */
+  --border: #e9d5ff;        /* purple-200 */
+  --hover: #f3e8ff;         /* purple-100 */
+  --text: #1f2937;          /* gray-800 */
+  --muted: #6b7280;         /* gray-500 */
+  --accent: var(--brand);
+  --public: #b45309;        /* amber-700: "anyone can see this" */
+  --public-bg: #fffbeb;
+  --public-border: #fcd34d;
+  --ok: #15803d;            /* green-700: private / done */
+  --ok-bg: #f0fdf4;
+  --ok-border: #86efac;
+  --danger: #b91c1c;
   --radius: 16px;
+  --shadow: 0 10px 30px rgba(94, 0, 178, 0.08), 0 2px 6px rgba(94, 0, 178, 0.06);
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: "Alegreya SC", Georgia, serif;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Alegreya SC", Georgia, serif;
 }
 
+/* Primary button: solid brand purple, lifts on hover. */
 .s101 .btn-hero {
-  background-image: linear-gradient(to right, var(--accent), var(--green));
-  transition: transform 0.3s, box-shadow 0.3s;
+  background: var(--brand);
+  box-shadow: 0 10px 15px -3px rgba(168, 85, 247, 0.25), 0 4px 6px -4px rgba(168, 85, 247, 0.25);
+  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
 }
 .s101 .btn-hero:hover:not(:disabled) {
-  box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+  background: var(--brand-accent);
+  box-shadow: 0 10px 15px -3px rgba(168, 85, 247, 0.4), 0 4px 6px -4px rgba(168, 85, 247, 0.4);
+  transform: translateY(-2px);
 }
 
 @keyframes s101-fade {

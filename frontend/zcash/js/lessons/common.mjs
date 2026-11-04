@@ -27,10 +27,10 @@ export function explorerPane(d) {
     kv("Block", d.blockHeight ?? "pending"),
     kv("Fee", zec(d.feeZat)),
     kv("Shielded actions", d.ironwoodActions + d.orchardActions),
-    kv("Sender", "—", ".hidden-val"),
-    kv("Receiver", "—", ".hidden-val"),
-    kv("Amount", "—", ".hidden-val"),
-    kv("Memo", "—", ".hidden-val"),
+    kv("Sender", "🔒 encrypted", ".hidden-val"),
+    kv("Receiver", "🔒 encrypted", ".hidden-val"),
+    kv("Amount", "🔒 encrypted", ".hidden-val"),
+    kv("Memo", "🔒 encrypted", ".hidden-val"),
   );
   if (d.hexSample) {
     pane.append(

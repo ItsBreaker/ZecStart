@@ -19,7 +19,7 @@ function header(current) {
 function home() {
   const next = lessons.find((l) => !isDone(l.id)) ?? lessons[lessons.length - 1];
   return h("main.fade-in",
-    h("h1", "Learn Zcash privacy by doing it"),
+    h("h1", "Learn Zcash ", h("span.hl", "privacy"), " by doing it"),
     h("p", "Five short lessons, about 10 minutes in total. Each one sends real transactions on the Zcash ",
       h("b", "testnet"), ", a practice network whose coins (TAZ) have no monetary value. Every step gives you a link to check it yourself on a public block explorer."),
     h("p.muted.small", "No wallet, no sign-up, no faucet. We run practice wallets for you."),

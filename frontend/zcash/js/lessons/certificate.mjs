@@ -36,7 +36,7 @@ export function render(root) {
     h("div.card",
       h("h3", "Your proof on the testnet"),
       proofs.map(([label, txid]) => h("div.kv", h("span", label),
-        txid ? h("a.mono", { href: txUrl(txid), target: "_blank", rel: "noopener" }, short(txid, 6)) : h("b", "—"))),
+        txid ? h("a.mono", { href: txUrl(txid), target: "_blank", rel: "noopener" }, short(txid, 6)) : h("b", "not yet"))),
       h("div.kv", h("span", "Audited with a viewing key"), h("b", "✓"))),
     h("button.btn.btn-hero", {
       onclick: async () => {
