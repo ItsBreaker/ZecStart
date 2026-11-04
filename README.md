@@ -10,7 +10,7 @@
 | **Live URL** | https://zecstart.jayden-3af.workers.dev/zcash/ |
 | **Demo video** | `[VIDEO_URL]` |
 | **Testnet txid** | [`e3d7a1be977345372a9a2de427451df8e3cf1c2362a49d97f42b316e6dbb84c8`](https://zexplorer.app/testnet/tx/e3d7a1be977345372a9a2de427451df8e3cf1c2362a49d97f42b316e6dbb84c8): a shielded `utest1` → `utest1` payment with a memo, made by the app. More in [SUBMISSION.md](SUBMISSION.md). |
-| **Team** | `[TEAM]` |
+| **Team** | Jayden Hunt |
 
 ---
 
@@ -122,11 +122,10 @@ Full note: [PRIVACY.md](PRIVACY.md).
 
 ## 7. What's next (30 days)
 
-`[NEXT_STEP: to be filled in with links]`
-
-- **Next milestone:** `[TBD]`
-- **Who benefits:** `[TBD]`
-- **Already started:** `[links: issue, PR, forum post, partner message]`
+- **Next milestone:** integrate Zec Start into [OnChain Education](https://onchaineducation.org), our hands-on blockchain education platform, as a Zcash privacy module for university students, and teach it to a class.
+- **Then:** an onboarding pathway that moves students from our custodial testnet wallets to their own wallets: first Noir Wallet's testnet extension, then their own wallet on mainnet.
+- **Who benefits:** university students learning blockchain on OnChain Education, most of whom have never made a shielded payment.
+- **Already started:** `[LINKS: add any issue, PR, forum post or partner message here]`
 
 ## 8. Links
 
