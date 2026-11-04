@@ -75,10 +75,10 @@ Full note: [PRIVACY.md](PRIVACY.md).
    - **Our backend (the operator)** creates every transaction, so it knows each memo and amount. It sees learners' IPs and a per-tab random id, held **in memory only** for rate limiting (up to 1 hour), never written to disk. Logs contain no IPs and no memo contents.
    - **The light-wallet server** (`testnet.zec.rocks`) sees the backend's IP and sync timing, not learners'. Our zingo-cli build connects without the Nym mixnet.
    - **CipherScan's API** sees which txids the backend looks up.
-   - **Cloudflare** (Workers and Tunnel) sees learners' IPs and requests in transit.
+   - **Cloudflare** (Workers) sees learners' IPs when they load the site; **Railway** (the API host) sees their IPs and API requests, and hosts the volume with the custodial testnet wallets.
    - **Anyone** can read the journalist fund's activity, because its viewing key is published on purpose (lesson 4).
    - The browser stores progress and txids in `localStorage` only. There are no analytics, cookies or third-party scripts.
-3. **Who do users have to trust?** Us as operator (custodial testnet wallets), Cloudflare, `testnet.zec.rocks` and CipherScan, each for the data above.
+3. **Who do users have to trust?** Us as operator (custodial testnet wallets), Railway, Cloudflare, `testnet.zec.rocks` and CipherScan, each for the data above.
 4. **What would we fix next?** Route the backend's light-wallet traffic through Nym, and move to non-custodial learner wallets so the operator no longer sees memos.
 
 **Viewing key (receiving demo wallet, "friend"):** in [SUBMISSION.md](SUBMISSION.md), with birth height 4582081.
@@ -90,14 +90,14 @@ Full note: [PRIVACY.md](PRIVACY.md).
   - [zingo-cli](https://github.com/zingolabs/zingolib) from zingolib commit `3f2529e22` (2 Nov 2026), built with the `nakednet-test-mode` feature (no mixnet)
   - Node.js (tested on v26.13.0; needs 20+), no npm dependencies; Python 3.9 for the pty bridge
   - Plain HTML, CSS and ES modules (no framework, no build step); Inter and Alegreya SC fonts (SIL OFL), self-hosted
-  - Cloudflare Workers static assets (`wrangler.jsonc`) for the frontend; Cloudflare Tunnel (`cloudflared` 2026.10.7) for the backend
+  - Cloudflare Workers static assets (`wrangler.jsonc`) for the frontend; [Railway](https://railway.com) (Docker, `rust:1-bookworm` build stage with Rust 1.99.0 from zingolib's `rust-toolchain.toml`, `node:22-bookworm-slim` runtime, a persistent volume) for the backend
   - [Zexplorer](https://zexplorer.app) for explorer links; [CipherScan](https://api.testnet.cipherscan.app) public testnet API for the in-page explorer view
   - [Noir Wallet](https://github.com/NoirWallet/noir-wallet/releases) testnet extension (optional own-wallet path, via `window.noirwallet`)
   - ZIPs: [316](https://zips.z.cash/zip-0316) (unified addresses and viewing keys), [317](https://zips.z.cash/zip-0317) (fees, always computed by the wallet), [302](https://zips.z.cash/zip-0302) (memos), [321](https://zips.z.cash/zip-0321) (payment links), [229](https://zips.z.cash/zip-0229)/[258](https://zips.z.cash/zip-0258)/[318](https://zips.z.cash/zip-0318) (Ironwood)
 - **Architecture:**
 
   ```
-  [Learner's phone] → [Static site on Cloudflare]  ──HTTPS──▶ [Cloudflare Tunnel] → [Node API]
+  [Learner's phone] → [Static site on Cloudflare]  ──HTTPS──▶ [Railway: Node API + zingo-cli, wallets on a volume]
                                                                                        │ one zingo-cli session per wallet
                                                                                        ▼
                                                               [testnet.zec.rocks lightwalletd] → [Zcash testnet]
@@ -158,7 +158,13 @@ cp .env.example .env        # ZINGO_BIN, ALLOWED_ORIGINS, TRUST_PROXY (see comme
 
 **Deploy:**
 - **Frontend:** connect the repo to Cloudflare. As a Worker, `wrangler.jsonc` serves `frontend/` as static assets; as Pages, set no build command and output directory `frontend`. Set `apiUrl` in [`frontend/zcash/config.js`](frontend/zcash/config.js) to the backend's public URL.
-- **Backend:** `cloudflared tunnel --url http://127.0.0.1:8787` (quick tunnel), or a named tunnel on your own domain. Set `ALLOWED_ORIGINS` to the site's URL and `TRUST_PROXY=cloudflare`. On a Linux server, install Node, Python 3, zingo-cli and cloudflared, and copy `wallets/` over a secure channel.
+- **Backend (Railway):** `backend/Dockerfile` builds zingo-cli from upstream zingolib (pinned commit, no mixnet) and runs the API as a non-root user. On first boot it creates the five wallets on the volume.
+  1. Railway → **New Project** → **Deploy from GitHub repo** → pick this repo. In the service's **Settings**, set **Root Directory** to `backend` (it then uses `backend/Dockerfile` and `backend/railway.json`).
+  2. **Add a volume** to the service with mount path `/data` (wallets live in `/data/wallets`).
+  3. **Variables:** `ALLOWED_ORIGINS=https://zecstart.jayden-3af.workers.dev`, `TRUST_PROXY=railway`, `INDEXER=https://testnet.zec.rocks:443`, `ADMIN_TOKEN=<random, 24+ characters>`. Railway sets `PORT`.
+  4. **Settings → Networking → Generate Domain**, then set `apiUrl` in `frontend/zcash/config.js` to `https://<domain>/zcash/api`.
+  5. Open `https://<domain>/zcash/api/health`. Once `ready` is true it shows `learnerAddress`: fund it, wait for one confirmation, then split it into notes with `curl -X POST https://<domain>/zcash/api/admin/split -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" -d '{"count":30}'`.
+- **Backend (any machine):** `npm start`, then expose it with `cloudflared tunnel --url http://127.0.0.1:8787` and set `TRUST_PROXY=cloudflare`.
 
 **Safety controls:** fixed amounts (donations are one of three presets); memos are capped at 200 bytes and sanitised (the protocol limit is 512); rate limits per IP (40 per hour) and per browser tab (12 per hour), held in memory; a CORS allow-list; friendly errors with Retry; seed-like output is masked before it reaches the service.
 

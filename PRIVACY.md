@@ -47,7 +47,8 @@ These are demo trade-offs to make a zero-setup lesson possible, not how a produc
 
 - **Us, the operator.** The backend holds the custodial testnet wallets. It creates every learner's transaction, so it knows each memo and amount, and it sees learners' IP addresses (in memory only).
 - **The light-wallet server** (`testnet.zec.rocks`) sees the backend's IP address and its sync and send timing. It doesn't see learners' IPs.
-- **Cloudflare** (Workers for the site, Tunnel for the API) sees learners' IP addresses and requests in transit.
+- **Cloudflare** (Workers, serving the site) sees learners' IP addresses when they load the page.
+- **Railway** (hosting the API) sees learners' IP addresses and API requests in transit, and, as the host, could read the volume that holds the custodial testnet wallets.
 - **CipherScan's public API** sees which txids the backend looks up.
 - **Anyone holding a published viewing key** can read the friend's and journalist's incoming memos and amounts (above).
 
