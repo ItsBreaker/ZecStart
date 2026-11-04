@@ -39,3 +39,16 @@ zingo-cli --chain testnet --server https://testnet.zec.rocks:443 --data-dir ./fr
 | 1. Shield your coins: shielding transaction | `ab90d6296158aac7e4dc836e75df247632fd7e0b7a921a534e83fd850d0287ea` |
 | 3. Donate privately | `54ee1bb891d396d297944e672f05b9e5e80ece9cd0ca1ae27b5d2e13c111fb49` |
 | 4. Verify the fund | The fund's published viewing key is shown in the app (`GET /zcash/api/fund`). The view-only wallet's real reply to a spend attempt: `Failed to construct sending transaction. No unified spending key found for this account. No spend capability` |
+
+## Deployed app (Railway backend, Cloudflare frontend)
+
+Run through the deployed frontend code against `https://zecstart-production.up.railway.app` on 4 Nov 2026, 21:45–21:50 IST. The deployed backend created its own fresh demo wallets on first boot, so its friend wallet differs from the one above. Its viewing key stays on the server.
+
+| Lesson | Testnet txid |
+|---|---|
+| 2. Pay a friend privately (core flow) | [`8d1b41e008cd6c53ea592936430e235e1c1a3650c8f98fc79d71fa5dba607dc2`](https://zexplorer.app/testnet/tx/8d1b41e008cd6c53ea592936430e235e1c1a3650c8f98fc79d71fa5dba607dc2), decrypted by the friend's view-only wallet 4 s after sending |
+| 1. Public withdrawal | [`e53c3b63a58c6ce0fc507174f348a31cbaa71058496742ef91ace74e20142097`](https://zexplorer.app/testnet/tx/e53c3b63a58c6ce0fc507174f348a31cbaa71058496742ef91ace74e20142097) |
+| 1. Shielding transaction | [`a5b0541c0d38035897af12bc371497a35eef22c90e52491af6fea17c60ba591e`](https://zexplorer.app/testnet/tx/a5b0541c0d38035897af12bc371497a35eef22c90e52491af6fea17c60ba591e) |
+| 3. Donate privately | [`2fa6b26f446e04f3cacfaedb00ab476662130feff03a85602f5a4ff2d9a34e0b`](https://zexplorer.app/testnet/tx/2fa6b26f446e04f3cacfaedb00ab476662130feff03a85602f5a4ff2d9a34e0b) |
+| 4. Verify the fund | Spend attempt with the fund's viewing key: `No unified spending key found for this account. No spend capability` |
+

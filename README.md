@@ -63,6 +63,7 @@ Optional paths: **"Use your own testnet wallet"** (Noir Wallet's testnet extensi
 | Confirmed in a block | ✅ real | 17 s after sending, block 4582305 |
 | Explorer view (fee, shielded actions, raw bytes) | ✅ real | read from CipherScan's public testnet API |
 | Lessons 1, 3, 4 | ✅ real | txids in [SUBMISSION.md](SUBMISSION.md) |
+| Deployed app end to end (Cloudflare Workers frontend → Railway backend) | ✅ real | all four lessons on 4 Nov, 21:45–21:50 IST; lesson 2 txid [`8d1b41e0…`](https://zexplorer.app/testnet/tx/8d1b41e008cd6c53ea592936430e235e1c1a3650c8f98fc79d71fa5dba607dc2) |
 
 No core step is mocked or manual. **Known limitations:** the wallets are custodial by design (see the trust note). Lesson 4's "try to spend" needs the fund to hold confirmed coins; if its newest donations are still confirming, the app says so and offers Retry rather than showing a misleading error. Transaction tracking is in memory, so a backend restart forgets in-flight timelines (the transactions themselves are unaffected).
 
