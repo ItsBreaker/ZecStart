@@ -10,7 +10,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { config } from "./config.mjs";
 import { ZingoSession } from "./session.mjs";
-import { parseBalance, parseError, parseHeight, parseTxids, parseValueTransfers } from "./parse.mjs";
+import { parseBalance, parseError, parseHeight, parseTxids, parseValueTransfers, zats } from "./parse.mjs";
 
 const dir = (name) => join(config.walletDir, name);
 const s = {
@@ -215,13 +215,15 @@ export async function fund() {
  * wallet only reports "No spend capability" when there is something to spend.
  */
 const JOURNALIST_FLOAT = 300_000;
-const SWEEP_FEE_ALLOWANCE = 20_000;
+const MIN_SWEEP = 100_000;
 export async function sweep() {
+  // max_send_value is what the wallet could send after its own ZIP-317 fee,
+  // so no fee is assumed here.
   for (const [name, keep] of [["friend", 0], ["journalist", JOURNALIST_FLOAT]]) {
-    const out = await s[name].run("spendable_balance");
-    const spendable = Number(out.match(/(\d+)/)?.[1] ?? 0);
-    const amount = spendable - keep - SWEEP_FEE_ALLOWANCE;
-    if (amount < 100_000) continue;
+    const out = await s[name].run(`max_send_value ${addresses.learner}`);
+    const max = zats(out.match(/([\d_]{3,})/)?.[1] ?? 0);
+    const amount = max - keep;
+    if (amount < MIN_SWEEP) continue;
     const txid = parseTxids(await s[name].run(`quicksend ${addresses.learner} ${amount} "sweep"`, 120_000));
     console.log(`[sweep] ${name} -> learner ${amount} zats ${txid}`);
   }

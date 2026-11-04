@@ -13,8 +13,8 @@ export function parseValueTransfers(text) {
       blockheight: Number(field("blockheight")) || null,
       datetime: field("datetime"),
       kind: field("kind"),
-      value: Number(field("value")) || 0,
-      fee: Number(field("transaction fee")) || 0,
+      value: zats(field("value")),
+      fee: zats(field("transaction fee")),
       poolsReceived: field("pools_received") || "",
       memos: [...block.matchAll(/\n\s*memo \d+: ([^\n]*)/g)].map((m) => m[1]),
     });
@@ -22,12 +22,15 @@ export function parseValueTransfers(text) {
   return out;
 }
 
-/** `balance` prints `name: zats` lines. */
+/** `balance` prints `name: zats` lines, with digit groups like 100_000_000. */
 export function parseBalance(text) {
   const bal = {};
-  for (const m of text.matchAll(/(\w+_balance): (\d+)/g)) bal[m[1]] = Number(m[2]);
+  for (const m of text.matchAll(/(\w+_balance): ([\d_]+)/g)) bal[m[1]] = zats(m[2]);
   return bal;
 }
+
+/** zingo-cli writes zatoshi amounts with "_" digit separators. */
+export const zats = (s) => Number(String(s).replace(/_/g, "")) || 0;
 
 /** quicksend / quickshield / confirm print JSON containing "txids". */
 export function parseTxids(text) {

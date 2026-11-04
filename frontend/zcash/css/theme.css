@@ -1,0 +1,54 @@
+/* Design tokens, fonts and shared motion for Shielded 101. */
+
+@font-face { font-family: "Inter"; font-weight: 400; font-display: swap; src: url("../fonts/inter-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-display: swap; src: url("../fonts/inter-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 800; font-display: swap; src: url("../fonts/inter-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "Alegreya SC"; font-weight: 700; font-display: swap; src: url("../fonts/alegreya-sc-latin-700-normal.woff2") format("woff2"); }
+
+.s101 {
+  --bg: #0a0a0a;
+  --card: rgba(22, 22, 22, 0.8);
+  --card-solid: #161616;
+  --border: rgba(255, 255, 255, 0.1);
+  --hover: rgba(255, 255, 255, 0.05);
+  --muted: #888;
+  --text: #ededed;
+  --accent: #ed7513;
+  --green: rgb(27, 97, 0);
+  --ok: #4ade80;
+  --brand: #5e00b2;
+  --brand-light: #7b2fd6;
+  --brand-accent: #7c3aed;
+  --danger: #f87171;
+  --radius: 16px;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Alegreya SC", Georgia, serif;
+}
+
+.s101 .btn-hero {
+  background-image: linear-gradient(to right, var(--accent), var(--green));
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.s101 .btn-hero:hover:not(:disabled) {
+  box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+}
+
+@keyframes s101-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.s101 .fade-in { animation: s101-fade 0.25s ease-out; }
+
+@keyframes s101-pulse-slow {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 0.5; }
+}
+.s101 .pulse-slow { animation: s101-pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .s101 *, .s101 *::before, .s101 *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

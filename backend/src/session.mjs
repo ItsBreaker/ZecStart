@@ -103,9 +103,12 @@ export class ZingoSession {
 // Drop the echoed command line and the trailing prompt, keep what it printed.
 function cleanOutput(buf, command) {
   let text = buf;
-  const tail = command.slice(-24);
-  const at = text.lastIndexOf(tail);
-  if (at >= 0) text = text.slice(at + tail.length);
+  // The echo comes first; output can repeat the command's words (e.g. "balance").
+  const at = text.indexOf(command.slice(-24));
+  if (at >= 0) {
+    const eol = text.indexOf("\n", at);
+    text = eol >= 0 ? text.slice(eol + 1) : "";
+  }
   const lastPrompt = text.lastIndexOf("\n");
   if (lastPrompt >= 0 && PROMPT_AT_END.test(text)) text = text.slice(0, lastPrompt);
   return text.trim();

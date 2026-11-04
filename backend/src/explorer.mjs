@@ -1,11 +1,11 @@
 // What a public block explorer can see about a transaction.
 //
-// Learners follow links to testnet.zcashexplorer.app (it renders for
-// everyone). For the in-page "what the explorer sees" panel we read
+// Learners follow links to zexplorer.app (the explorer the hackathon
+// recommends). For the in-page "what the explorer sees" panel we read
 // CipherScan's public testnet API from the backend, so the learner's browser
 // never contacts a third party unless they click a link.
 const API = process.env.EXPLORER_API ?? "https://api.testnet.cipherscan.app/api";
-export const EXPLORER_TX_URL = "https://testnet.zcashexplorer.app/transactions/{txid}";
+export const EXPLORER_TX_URL = "https://zexplorer.app/testnet/tx/{txid}";
 
 const cache = new Map(); // txid -> { at, data }
 
