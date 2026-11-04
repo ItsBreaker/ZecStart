@@ -12,6 +12,11 @@ const PROMPT_AT_END = />> $/;
 const QUIET_MS = 250;
 // The pty accepts input lines of ~1000 bytes at most; longer ones wedge it.
 const MAX_LINE = 950;
+// One command per line: a command word, then plain tokens (addresses,
+// numbers, subcommands), then at most one double-quoted memo that contains
+// no quote, backslash or control character. Anything else is refused, so
+// user input can never become a second command or a different argument.
+const GRAMMAR = /^([a-z_]+)((?: [A-Za-z0-9_]+)*)(?: "[^"\\\u0000-\u001f\u007f]*")?$/;
 
 export class ZingoSession {
   /**
@@ -23,9 +28,11 @@ export class ZingoSession {
    * @param {string} [opts.chain]    "testnet" (default), "mainnet" or "regtest"
    * @param {string} [opts.python]   Python 3 interpreter for the pty bridge
    * @param {string[]} [opts.extraArgs] extra zingo-cli arguments
+   * @param {string[]} [opts.allow]  command words this session may run (default: any)
    */
-  constructor({ name, dataDir, zingoBin, server = "https://testnet.zec.rocks:443", chain = "testnet", python = "python3", extraArgs = [] }) {
+  constructor({ name, dataDir, zingoBin, server = "https://testnet.zec.rocks:443", chain = "testnet", python = "python3", extraArgs = [], allow = null }) {
     Object.assign(this, { name, dataDir, zingoBin, server, chain, python, extraArgs });
+    this.allow = allow ? new Set(allow) : null;
     this.queue = Promise.resolve();
     this.buf = "";
     this.listener = null;
@@ -72,6 +79,11 @@ export class ZingoSession {
     if (Buffer.byteLength(command) > MAX_LINE) {
       return Promise.reject(new Error("command too long for the zingo-cli prompt"));
     }
+    const word = command.match(GRAMMAR)?.[1];
+    if (!word) return Promise.reject(new Error(`${this.name}: refused a malformed command`));
+    if (this.allow && !this.allow.has(word)) {
+      return Promise.reject(new Error(`${this.name}: command "${word}" is not allowed`));
+    }
     const job = this.queue.then(() => this.#exec(command, timeoutMs));
     this.queue = job.catch(() => {});
     return job;
@@ -104,8 +116,13 @@ export class ZingoSession {
     });
   }
 
+  /** Ask zingo-cli to save and quit; resolves once the process has exited. */
   stop() {
-    this.proc?.stdin.end();
+    if (!this.proc || this.proc.exitCode !== null) return Promise.resolve();
+    const exited = new Promise((resolve) => this.proc.once("exit", resolve));
+    this.ready = false;
+    this.proc.stdin.end();
+    return exited;
   }
 }
 

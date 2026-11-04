@@ -1,0 +1,9 @@
+# Never send wallets, secrets or logs into an image build.
+wallets/
+.env
+.env.*
+!.env.example
+*.ufvk
+*.log
+node_modules/
+.zingo-cli/

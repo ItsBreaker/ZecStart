@@ -1,6 +1,7 @@
 // Shielded 101 wallet backend: a small JSON API over custodial testnet
 // wallets. No accounts and no database; state lives in memory.
 import http from "node:http";
+import { timingSafeEqual } from "node:crypto";
 import { config } from "./config.mjs";
 import { allowAction } from "./limits.mjs";
 import * as w from "./wallets.mjs";
@@ -48,6 +49,13 @@ const routes = {
     return w.findIncoming(url.searchParams.get("wallet"), code);
   },
 
+  // Operator only: split the learner wallet's balance into notes after funding.
+  "POST /admin/split": async (body, _url, req) => {
+    if (!isAdmin(req)) throw userError("Not found.", 404);
+    const count = Math.min(60, Math.max(5, Number(body.count) || 30));
+    return w.splitNotes(count);
+  },
+
   "GET /tx": async (_body, url) => {
     const t = w.txState(hex64(url.searchParams.get("txid")));
     if (!t) throw userError("We are not tracking that transaction.", 404);
@@ -76,8 +84,19 @@ function userError(message, status = 400) {
 }
 
 function clientIp(req) {
-  if (config.trustProxy && req.headers["cf-connecting-ip"]) return req.headers["cf-connecting-ip"];
+  if (config.trustProxy === "cloudflare" && req.headers["cf-connecting-ip"]) return req.headers["cf-connecting-ip"];
+  if (config.trustProxy === "railway" && req.headers["x-forwarded-for"]) {
+    // The edge appends the address it saw; earlier entries are client-supplied.
+    return req.headers["x-forwarded-for"].split(",").pop().trim();
+  }
   return req.socket.remoteAddress;
+}
+
+function isAdmin(req) {
+  if (!config.adminToken) return false;
+  const given = Buffer.from(String(req.headers.authorization ?? ""));
+  const want = Buffer.from(`Bearer ${config.adminToken}`);
+  return given.length === want.length && timingSafeEqual(given, want);
 }
 
 function cors(req, res) {
@@ -136,5 +155,8 @@ w.startWallets().catch((e) => {
 });
 
 for (const sig of ["SIGINT", "SIGTERM"]) {
-  process.on(sig, () => { w.stopWallets(); setTimeout(() => process.exit(0), 8000); });
+  process.on(sig, () => {
+    w.stopWallets().then(() => process.exit(0));
+    setTimeout(() => process.exit(0), 8000);
+  });
 }

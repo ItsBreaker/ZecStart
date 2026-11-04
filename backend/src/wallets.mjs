@@ -10,18 +10,31 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { config } from "./config.mjs";
 import { ZingoSession } from "../zingo/session.mjs";
+import { splitLearnerNotes } from "./split.mjs";
+import { ensureWallets } from "./bootstrap.mjs";
 import { parseBalance, parseError, parseHeight, parseTxids, parseValueTransfers, zats } from "../zingo/parse.mjs";
 
-const session = (name) => new ZingoSession({
-  name, dataDir: join(config.walletDir, name),
+// Each session may run only the zingo-cli commands its role needs.
+const READ = ["height", "sync", "addresses", "balance", "value_transfers", "spendable_balance"];
+const ALLOW = {
+  learner: [...READ, "t_addresses", "settings", "quicksend", "quickshield", "remove_transaction"],
+  sender: [...READ, "quicksend", "max_send_value", "remove_transaction"],
+  view: READ,
+  // The fund's view-only wallet is asked to spend in lesson 4; it can't.
+  viewSpendDemo: [...READ, "quicksend"],
+};
+const session = (name, allow) => new ZingoSession({
+  name, dataDir: join(config.walletDir, name), allow,
   zingoBin: config.zingoBin, server: config.indexer, chain: config.chain, python: config.python,
+  // Keep zingo-cli's own interactive log off disk.
+  extraArgs: ["--log-file", "/dev/null"],
 });
 const s = {
-  learner: session("learner"),
-  friend: session("friend"),
-  friendView: session("friend-view"),
-  journalist: session("journalist"),
-  journalistView: session("journalist-view"),
+  learner: session("learner", ALLOW.learner),
+  friend: session("friend", ALLOW.sender),
+  friendView: session("friend-view", ALLOW.view),
+  journalist: session("journalist", ALLOW.sender),
+  journalistView: session("journalist-view", ALLOW.viewSpendDemo),
 };
 
 export const addresses = {};
@@ -33,6 +46,7 @@ let learnerBalance = null;
 const tracked = new Map();
 
 export async function startWallets() {
+  await ensureWallets();
   await Promise.all(Object.values(s).map((x) => x.start()));
   for (const [key, name] of [["learner", "learner"], ["friend", "friend"], ["journalist", "journalist"]]) {
     addresses[key] = (await s[name].run("addresses")).match(/"encoded_address": "([^"]+)"/)?.[1];
@@ -63,7 +77,14 @@ export async function startWallets() {
 }
 
 export function status() {
-  return { ready: Object.values(s).every((x) => x.ready), height: chainHeight, learnerBalance };
+  return {
+    ready: Object.values(s).every((x) => x.ready),
+    height: chainHeight,
+    learnerBalance,
+    // Public testnet addresses, so the operator can fund the learner wallet.
+    learnerAddress: addresses.learner ?? null,
+    learnerTransparentAddress: addresses.learnerTransparent ?? null,
+  };
 }
 
 // ---------- sending ----------
@@ -239,5 +260,27 @@ export async function sweep() {
 }
 
 export function stopWallets() {
-  for (const x of Object.values(s)) x.stop();
+  return Promise.all(Object.values(s).map((x) => x.stop()));
+}
+
+/** Operator action: pause the learner session, split its notes, resume. */
+let splitting = false;
+export async function splitNotes(count) {
+  if (splitting) throw new Error("a split is already running");
+  splitting = true;
+  try {
+    // Let queued commands finish, then close the wallet so it can be opened directly.
+    await s.learner.run("height").catch(() => {});
+    await s.learner.stop();
+    try {
+      return await splitLearnerNotes(count);
+    } finally {
+      s.learner = session("learner", ALLOW.learner);
+      await s.learner.start();
+      await s.learner.run("settings min_confirmations 1");
+      await s.learner.run("sync run");
+    }
+  } finally {
+    splitting = false;
+  }
 }

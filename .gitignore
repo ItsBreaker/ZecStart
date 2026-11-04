@@ -13,3 +13,4 @@ node_modules/
 *.pem
 *.dat
 .wrangler/
+.zingo-cli/

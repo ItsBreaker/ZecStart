@@ -14,8 +14,12 @@ export const config = {
   apiBase: (env.API_BASE ?? "/zcash/api").replace(/\/$/, ""),
   // Exact origins only (no wildcards).
   allowedOrigins: list(env.ALLOWED_ORIGINS ?? "http://localhost:8080"),
-  // Only trust CF-Connecting-IP when the service sits behind Cloudflare.
-  trustProxy: env.TRUST_PROXY === "cloudflare",
+  // Which proxy header to trust for the visitor's IP (used only for rate
+  // limits): "cloudflare" (CF-Connecting-IP), "railway" (the last
+  // X-Forwarded-For entry, added by Railway's edge), or unset (the socket).
+  trustProxy: ["cloudflare", "railway"].includes(env.TRUST_PROXY) ? env.TRUST_PROXY : null,
+  // Bearer token for operator-only routes (note splitting). Unset = disabled.
+  adminToken: env.ADMIN_TOKEN && env.ADMIN_TOKEN.length >= 24 ? env.ADMIN_TOKEN : null,
 
   zingoBin: env.ZINGO_BIN ?? resolve(homedir(), "Desktop/projects/zcash/scratch/target-ntm/release/zingo-cli"),
   python: env.PYTHON ?? "python3",
