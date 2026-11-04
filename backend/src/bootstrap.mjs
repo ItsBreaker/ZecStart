@@ -25,6 +25,9 @@ async function zingo(dataDir, ...args) {
 const walletFile = (dir) => join(dir, "zingo-wallet.dat");
 
 export async function ensureWallets() {
+  if (!existsSync(config.zingoBin)) {
+    throw new Error(`zingo-cli not found at ${config.zingoBin}. Unset ZINGO_BIN to use the binary in the Docker image.`);
+  }
   const root = config.walletDir;
   await mkdir(root, { recursive: true, mode: 0o700 });
   for (const name of ["learner", "friend", "journalist"]) {
