@@ -12,6 +12,7 @@ export const config = {
   host: env.HOST ?? "127.0.0.1",
   // Path prefix the API is served under (the tunnel may route /zcash/api/*).
   apiBase: (env.API_BASE ?? "/zcash/api").replace(/\/$/, ""),
+  // Exact origins only (no wildcards).
   allowedOrigins: list(env.ALLOWED_ORIGINS ?? "http://localhost:8080"),
   // Only trust CF-Connecting-IP when the service sits behind Cloudflare.
   trustProxy: env.TRUST_PROXY === "cloudflare",

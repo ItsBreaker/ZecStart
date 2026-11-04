@@ -38,7 +38,7 @@ export async function render(root, ctx) {
     h("div.card",
       h("label", "Amount"), chips,
       h("label", { for: "dmemo" }, "Message to the journalist (optional)"), memo,
-      h("p.small.muted", "⚠️ Don't put your name or anything identifying in the memo. In the next lesson you'll see why."),
+      h("p.small.memo-warning", { role: "note" }, "⚠️ ", "This is a public demo wallet. Its viewing key is published, so anyone can read this message. Don't write anything personal.", " In the next lesson you'll see why."),
       give),
     live,
   );

@@ -80,6 +80,11 @@
 }
 .s101 .chip[aria-pressed="true"] { border-color: var(--accent); background: rgba(237, 117, 19, 0.15); }
 
+.s101 .memo-warning {
+  color: #fcd9b6; background: rgba(237, 117, 19, 0.1); border: 1px solid rgba(237, 117, 19, 0.35);
+  border-radius: 10px; padding: 8px 10px; margin: 8px 0 12px;
+}
+
 /* Timeline: sent -> seen -> confirmed */
 .s101 .timeline { list-style: none; padding: 0; margin: 12px 0; }
 .s101 .timeline li { display: flex; align-items: center; gap: 12px; padding: 8px 0; color: var(--muted); }

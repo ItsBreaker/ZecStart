@@ -31,7 +31,7 @@ export async function render(root, ctx) {
     h("div.card",
       h("label", { for: "memo" }, "Write a secret message (memo)"),
       memo,
-      h("p.small.muted", "Memos are encrypted along with the payment. Keep it friendly; this is a public demo."),
+      h("p.small.memo-warning", { role: "note" }, "⚠️ ", "This is a public demo wallet. Its viewing key is published, so anyone can read this message. Don't write anything personal."),
       send),
     live,
   );
@@ -97,6 +97,7 @@ function showProgress(live, txid, sentMemo, ctx) {
           "The network checked a zero-knowledge proof that the payment is valid, without seeing who paid whom or how much.",
           "Your friend's wallet tried its key on new transactions, found this one, and decrypted the amount and memo.",
           "The explorer shows only that a shielded transaction exists, its fee and its size.",
+          "The memo is private from the public chain, not from viewing-key holders. This demo wallet's viewing key is published, so anyone holding it can read your message too.",
         ]),
         nextButton(ctx.nextHref),
       );

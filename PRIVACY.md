@@ -21,6 +21,12 @@ The backend runs the custodial testnet wallets, so it is in a position of trust:
 
 The backend can't learn who you are beyond your IP. There are no accounts, emails or names.
 
+## Memos in the demo wallets are readable by anyone
+
+Both demo receiving wallets have **published viewing keys**: the friend wallet's is in [SUBMISSION.md](SUBMISSION.md) so judges can verify the core flow, and the journalist fund's is shown in lesson 4. Anyone who loads one of those keys can read every memo sent to that wallet, along with its amount and time. Every memo box in the app says so: *"This is a public demo wallet. Its viewing key is published, so anyone can read this message. Don't write anything personal."*
+
+That is itself one of the lessons: a memo is private from the public chain, not from viewing-key holders. Whoever holds the recipient's viewing key, or its spending key, can read it, and so can the sender.
+
 ## What the public can see on the testnet
 
 - **Lesson 1:** the withdrawal to a transparent address (address and amount) is public, as is the shielding transaction's transparent input and the amount entering the shielded pool. That's the point of the lesson.
@@ -37,6 +43,26 @@ These are demo trade-offs to make a zero-setup lesson possible, not how a produc
 4. **Shared shielding.** In lesson 1, one shielding transaction may sweep the transparent coins of several learners who are shielding at the same moment.
 5. **Recycling sweeps.** Every 15 minutes the friend and journalist wallets send their balances back to the learner wallet. These are visible to holders of the journalist's viewing key.
 
+## Who must be trusted
+
+- **Us, the operator.** The backend holds the custodial testnet wallets. It creates every learner's transaction, so it knows each memo and amount, and it sees learners' IP addresses (in memory only).
+- **The light-wallet server** (`testnet.zec.rocks`) sees the backend's IP address and its sync and send timing. It doesn't see learners' IPs.
+- **Cloudflare** (Workers for the site, Tunnel for the API) sees learners' IP addresses and requests in transit.
+- **CipherScan's public API** sees which txids the backend looks up.
+- **Anyone holding a published viewing key** can read the friend's and journalist's incoming memos and amounts (above).
+
+## What the server stores and logs
+
+- **Stored on disk:** the wallet files and viewing keys in `backend/wallets/` (gitignored). Nothing about learners.
+- **In memory only, lost on restart:** rate-limit counters keyed by IP and per-tab id (for up to 1 hour), and the txids being tracked with their seen and confirmed times (for up to 6 hours).
+- **Logs:** start-up messages, errors and sweep txids. No IP addresses, and no memo contents.
+
+## What we'd fix next
+
+1. Route the backend's light-wallet traffic through the Nym mixnet, so the light-wallet server no longer sees the operator's IP and timing.
+2. Non-custodial learner wallets (for example, Noir Wallet's testnet extension for everyone), so the operator no longer sees memos or amounts.
+3. A demo receiving wallet per learner session, so published viewing keys never expose other learners' memos.
+
 ## Keys and secrets
 
-Seeds, spending keys and the friend's viewing key stay on the backend machine in `backend/wallets/`. That directory is gitignored, and they are never sent to the browser. The only key that leaves the server is the journalist fund's viewing key, which lesson 4 publishes deliberately.
+Seeds and spending keys stay on the backend machine in `backend/wallets/`. That directory is gitignored, and they never appear in code, logs or this repository, and are never sent to the browser. The pty bridge masks anything resembling a seed phrase before zingo-cli output reaches the service. Two **viewing keys** are published on purpose, labelled as such: the friend wallet's (in SUBMISSION.md, for judges) and the journalist fund's (lesson 4).
