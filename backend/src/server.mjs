@@ -80,9 +80,16 @@ function clientIp(req) {
   return req.socket.remoteAddress;
 }
 
+/** Exact match, or "https://*.example.pages.dev" for preview deployments. */
+function originMatches(allowed, origin) {
+  if (!allowed.includes("*.")) return allowed === origin;
+  const [scheme, host] = allowed.split("://*.");
+  return origin.startsWith(`${scheme}://`) && origin.endsWith(`.${host}`) && !origin.slice(scheme.length + 3).includes("/");
+}
+
 function cors(req, res) {
   const origin = req.headers.origin;
-  if (origin && config.allowedOrigins.includes(origin)) {
+  if (origin && config.allowedOrigins.some((o) => originMatches(o, origin))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");

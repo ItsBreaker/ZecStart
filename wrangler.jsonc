@@ -1,0 +1,11 @@
+// Cloudflare Workers static-assets deploy: serves frontend/ as-is (no build).
+// The app lives at /zcash/; the root redirects there.
+{
+  "name": "shielded101",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./frontend",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  }
+}
