@@ -122,3 +122,16 @@ export function tip(title, text) {
 export function nextButton(href, label = "Next lesson →") {
   return h("a.btn.btn-hero", { href }, label);
 }
+
+/** An address with a copy button and a link to it on the explorer. */
+export function addressRow(label, address, url) {
+  return h("div.kv.address-row",
+    h("span", label),
+    h("span.addr",
+      h("b.mono", { title: address }, short(address, 8)),
+      h("button.icon-btn", {
+        "aria-label": "Copy address", title: "Copy address",
+        onclick: () => navigator.clipboard?.writeText(address).then(() => toast("Address copied")),
+      }, "⧉"),
+      url ? h("a.icon-btn", { href: url, target: "_blank", rel: "noopener", "aria-label": "View address on the explorer", title: "View on the explorer" }, "↗") : null));
+}

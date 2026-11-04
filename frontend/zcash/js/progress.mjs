@@ -1,5 +1,5 @@
 // Lesson progress lives only in this browser (localStorage).
-const KEY = "shielded101.progress.v1";
+const KEY = "zecstart.progress.v1";
 
 function read() {
   try { return JSON.parse(localStorage.getItem(KEY)) ?? {}; } catch { return {}; }

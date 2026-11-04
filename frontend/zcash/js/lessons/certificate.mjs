@@ -13,7 +13,7 @@ export function render(root) {
   root.append(h("h2", "Your certificate"));
   if (missing.length) {
     root.append(
-      h("p", "Finish these lessons to earn your Shielded 101 badge:"),
+      h("p", "Finish these lessons to earn your Zec Start badge:"),
       ...missing.map((l) => h("a.card.lesson", { href: `#/${l.id}` },
         h("span.num", l.n), h("span", h("b", l.title)), h("span.arrow", "›"))),
     );
@@ -28,10 +28,10 @@ export function render(root) {
     ["Paid a friend privately", p.friend?.txid],
     ["Donated privately", p.donate?.txid],
   ];
-  const shareText = "I finished Shielded 101: hands-on Zcash privacy lessons on the real testnet.";
+  const shareText = "I finished Zec Start: hands-on Zcash privacy lessons on the real testnet.";
 
   root.append(
-    h("div.badge", h("div", h("span.shield", "🛡️"), h("span.title", "Shielded 101"), h("span.small.muted", date))),
+    h("div.badge", h("div", h("span.shield", "🛡️"), h("span.title", "Zec Start"), h("span.small.muted", date))),
     h("p", { style: "text-align:center" }, "You shielded coins, paid privately, donated without revealing yourself, and audited a fund with a viewing key."),
     h("div.card",
       h("h3", "Your proof on the testnet"),

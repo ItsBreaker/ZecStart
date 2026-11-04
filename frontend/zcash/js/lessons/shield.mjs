@@ -4,7 +4,8 @@ import { api, getInfo, watchTx } from "../api.mjs";
 import { addressUrl } from "../config.mjs";
 import { markDone } from "../progress.mjs";
 import { track } from "../analytics.mjs";
-import { h, zec, short, runAction, timeline, chime, explorerLink, recap, nextButton } from "../ui.mjs";
+import { h, zec, short, runAction, timeline, chime, explorerLink, recap, nextButton, addressRow } from "../ui.mjs";
+import { zecCoin, walletIcon, exchangeIcon } from "../icons.mjs";
 import { explorerData } from "./common.mjs";
 
 const kv = (k, v, cls = "") => h("div.kv", h("span", k), h(`b${cls}`, v));
@@ -14,12 +15,12 @@ export async function render(root, ctx) {
   const amount = info?.amounts.withdraw ?? 100_000;
   const taddr = info?.addresses.learnerTransparent ?? "";
 
-  const coin = h("span.token", "🪙");
+  const coin = h("span.token", zecCoin());
   const tag = h("span.label-public", "Public: anyone can see this");
   const stage = h("div.stage", tag,
-    h("div.actor.left", h("span.face", "🏦"), "Exchange"),
+    h("div.actor.left", h("span.face", exchangeIcon()), "Exchange"),
     coin,
-    h("div.actor.right", h("span.face", "👛"), "Your public address"));
+    h("div.actor.right", h("span.face", walletIcon()), "Your public address"));
 
   const withdraw = h("button.btn.btn-hero", `Withdraw ${zec(amount)} from the exchange`);
   const live = h("div");
@@ -43,11 +44,10 @@ export async function render(root, ctx) {
 function depositProgress(live, txid, taddr, amount, ctx, scene) {
   const tl = timeline(["Exchange sent it", "Seen by the network", "Confirmed: ready to shield"]);
   const pub = h("div.pane.public", h("h3", "What anyone can see"),
-    kv("To address", short(taddr, 8)), kv("Amount", zec(amount)),
+    addressRow("To address", taddr, addressUrl(taddr)), kv("Amount", zec(amount)),
     h("p.small.muted", { style: "margin-top:8px" }, "This address and its balance are now public, forever."));
   const shieldBtn = h("button.btn.btn-hero", { disabled: true }, "Waiting for 1 confirmation…");
   const card = h("div.card.fade-in", h("h3", "Your withdrawal"), tl.el, pub,
-    h("a.btn.secondary", { href: addressUrl(taddr), target: "_blank", rel: "noopener", style: "margin-top:10px" }, "Look up your public address ↗"),
     explorerLink(txid, "View the withdrawal ↗"));
   const step2 = h("div.card.fade-in",
     h("p.small.muted", "Step 2 of 2. Shielding usually takes 1–2 minutes to confirm the withdrawal first. Notice how much a stranger could learn while you wait."),
@@ -67,14 +67,43 @@ function depositProgress(live, txid, taddr, amount, ctx, scene) {
     const r = await api("/shield", { depositTxid: txid });
     track("tx_sent", { lesson: ctx.lesson.n, step: 2 });
     step2.remove();
-    scene.stage.append(h("div.actor.center", h("span.face", "🛡️"), "Shielded pool"));
-    scene.coin.classList.remove("travel");
-    scene.coin.classList.add("to-center");
-    setTimeout(() => scene.coin.classList.add("vanish"), 1400);
-    scene.tag.textContent = "Shielded: private from here on";
-    scene.tag.classList.add("private");
+    scene.stage.replaceWith(poolScene(taddr, amount));
     shieldProgress(live, r, txid, ctx);
   }).catch(() => {}));
+}
+
+/**
+ * The shielded pool: many identical encrypted notes. Your coin arrives still
+ * wearing its public label (address and amount), the label is stripped at
+ * the edge of the pool, and inside it looks like every other note.
+ */
+function poolScene(taddr, amount) {
+  const others = Array.from({ length: 8 }, (_, i) =>
+    h("span.orbit-coin", { style: `--a:${i * 45}deg` }, zecCoin()));
+  const mine = h("span.orbit-coin.mine", { style: "--a:22deg" }, zecCoin());
+  const incoming = h("div.incoming", zecCoin(), h("span.tag", `${short(taddr, 4)} · ${zec(amount)}`));
+  const caption = h("ol.pool-steps");
+  const steps = [
+    "Your coin leaves the public address. This step is visible: anyone can see the address and the amount going in.",
+    "At the edge of the pool its public label is gone. Inside, every note is encrypted.",
+    "Now it looks like every other note in the pool. Only your keys can find it and spend it.",
+  ];
+  const scene = h("div.pool-card.fade-in",
+    h("div.pool",
+      h("span.label-public", "Public until it enters"),
+      h("div.ring", h("div.orbit", others, mine), h("div.pool-label", "Shielded", h("br"), "pool")),
+      incoming),
+    caption);
+  const show = (i) => caption.append(h("li.fade-in", steps[i]));
+  // Start once the scene is in the page.
+  setTimeout(() => {
+    show(0);
+    setTimeout(() => incoming.classList.add("enter"), 300);
+    setTimeout(() => { show(1); scene.querySelector(".label-public").textContent = "Shielded: private from here on"; scene.querySelector(".label-public").classList.add("private"); }, 1700);
+    setTimeout(() => { incoming.classList.add("gone"); mine.classList.add("arrived"); }, 2100);
+    setTimeout(() => { show(2); mine.classList.add("settled"); mine.classList.remove("arrived"); }, 4200);
+  }, 50);
+  return scene;
 }
 
 function shieldProgress(live, { txid, shared }, depositTxid, ctx) {

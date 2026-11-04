@@ -92,7 +92,7 @@ Full note: [PRIVACY.md](PRIVACY.md).
   - Node.js (tested on v26.13.0; needs 20+), no npm dependencies; Python 3.9 for the pty bridge
   - Plain HTML, CSS and ES modules (no framework, no build step); Inter and Alegreya SC fonts (SIL OFL), self-hosted
   - Cloudflare Workers static assets (`wrangler.jsonc`) for the frontend; [Railway](https://railway.com) (Docker, `rust:1-bookworm` build stage with Rust 1.99.0 from zingolib's `rust-toolchain.toml`, `node:22-bookworm-slim` runtime, a persistent volume) for the backend
-  - [Zexplorer](https://zexplorer.app) for explorer links; [CipherScan](https://api.testnet.cipherscan.app) public testnet API for the in-page explorer view
+  - [testnet.zcashexplorer.app](https://testnet.zcashexplorer.app) for in-app explorer links (Zexplorer's index returned "Transaction not found" for some of our confirmed transactions); [CipherScan](https://api.testnet.cipherscan.app) public testnet API for the in-page explorer view
   - [Noir Wallet](https://github.com/NoirWallet/noir-wallet/releases) testnet extension (optional own-wallet path, via `window.noirwallet`)
   - ZIPs: [316](https://zips.z.cash/zip-0316) (unified addresses and viewing keys), [317](https://zips.z.cash/zip-0317) (fees, always computed by the wallet), [302](https://zips.z.cash/zip-0302) (memos), [321](https://zips.z.cash/zip-0321) (payment links), [229](https://zips.z.cash/zip-0229)/[258](https://zips.z.cash/zip-0258)/[318](https://zips.z.cash/zip-0318) (Ironwood)
 - **Architecture:**

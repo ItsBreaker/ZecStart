@@ -4,10 +4,10 @@ import { API_URL } from "./config.mjs";
 // An anonymous id for this tab only, used for per-session rate limiting.
 function sessionId() {
   try {
-    let id = sessionStorage.getItem("shielded101.session");
+    let id = sessionStorage.getItem("zecstart.session");
     if (!id) {
       id = crypto.randomUUID();
-      sessionStorage.setItem("shielded101.session", id);
+      sessionStorage.setItem("zecstart.session", id);
     }
     return id;
   } catch {

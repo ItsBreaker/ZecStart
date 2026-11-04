@@ -1,16 +1,16 @@
-// Shielded 101 entry point: a tiny hash router (#/friend, #/donate, ...)
+// Zec Start entry point: a tiny hash router (#/friend, #/donate, ...)
 // so the module works under any base path without server rewrites.
 import { lessons } from "./lessons.mjs";
 import { isDone } from "./progress.mjs";
 import { h } from "./ui.mjs";
 import { track } from "./analytics.mjs";
 
-const root = document.getElementById("shielded101");
+const root = document.getElementById("zecstart");
 export const lessonHref = (id) => `#/${id}`;
 
 function header(current) {
   return h("header.topbar",
-    h("a.brand", { href: "#/" }, "Shielded ", h("span", "101")),
+    h("a.brand", { href: "#/" }, "Zec ", h("span", "Start")),
     h("div.dots", { "aria-label": "Progress" },
       lessons.map((l) => h(`i${isDone(l.id) ? ".done" : ""}${l.id === current ? ".here" : ""}`, { title: l.title }))),
   );
