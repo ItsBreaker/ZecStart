@@ -1,0 +1,11 @@
+.env
+.env.*
+backend/wallets/
+*.ufvk
+*seed*
+*.key
+wallet.json
+logs/
+*.log
+node_modules/
+.DS_Store
