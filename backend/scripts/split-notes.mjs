@@ -7,7 +7,7 @@
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { config } from "../src/config.mjs";
-import { parseBalance, parseTxids } from "../src/parse.mjs";
+import { parseBalance, parseTxids } from "../zingo/parse.mjs";
 
 const count = Number(process.argv[2] ?? 30);
 const dataDir = join(config.walletDir, "learner");

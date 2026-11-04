@@ -9,16 +9,19 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { config } from "./config.mjs";
-import { ZingoSession } from "./session.mjs";
-import { parseBalance, parseError, parseHeight, parseTxids, parseValueTransfers, zats } from "./parse.mjs";
+import { ZingoSession } from "../zingo/session.mjs";
+import { parseBalance, parseError, parseHeight, parseTxids, parseValueTransfers, zats } from "../zingo/parse.mjs";
 
-const dir = (name) => join(config.walletDir, name);
+const session = (name) => new ZingoSession({
+  name, dataDir: join(config.walletDir, name),
+  zingoBin: config.zingoBin, server: config.indexer, chain: config.chain, python: config.python,
+});
 const s = {
-  learner: new ZingoSession("learner", dir("learner")),
-  friend: new ZingoSession("friend", dir("friend")),
-  friendView: new ZingoSession("friend-view", dir("friend-view")),
-  journalist: new ZingoSession("journalist", dir("journalist")),
-  journalistView: new ZingoSession("journalist-view", dir("journalist-view")),
+  learner: session("learner"),
+  friend: session("friend"),
+  friendView: session("friend-view"),
+  journalist: session("journalist"),
+  journalistView: session("journalist-view"),
 };
 
 export const addresses = {};

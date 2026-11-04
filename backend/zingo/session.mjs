@@ -3,34 +3,43 @@
 // Starting zingo-cli and syncing is slow, so each wallet keeps a single
 // session open. Commands run one at a time through a queue; a command is
 // finished when zingo-cli prints a fresh, empty prompt and then goes quiet.
+// See README.md in this folder.
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { config } from "./config.mjs";
 
-const BRIDGE = fileURLToPath(new URL("../pty_bridge.py", import.meta.url));
+const BRIDGE = fileURLToPath(new URL("./pty_bridge.py", import.meta.url));
 const PROMPT_AT_END = />> $/;
 const QUIET_MS = 250;
 // The pty accepts input lines of ~1000 bytes at most; longer ones wedge it.
 const MAX_LINE = 950;
 
 export class ZingoSession {
-  constructor(name, dataDir, extraArgs = []) {
-    this.name = name;
-    this.dataDir = dataDir;
-    this.extraArgs = extraArgs;
+  /**
+   * @param {object} opts
+   * @param {string} opts.name       label used in errors and logs
+   * @param {string} opts.dataDir    zingo-cli wallet directory
+   * @param {string} opts.zingoBin   path to the zingo-cli binary
+   * @param {string} [opts.server]   light-wallet server (default testnet.zec.rocks)
+   * @param {string} [opts.chain]    "testnet" (default), "mainnet" or "regtest"
+   * @param {string} [opts.python]   Python 3 interpreter for the pty bridge
+   * @param {string[]} [opts.extraArgs] extra zingo-cli arguments
+   */
+  constructor({ name, dataDir, zingoBin, server = "https://testnet.zec.rocks:443", chain = "testnet", python = "python3", extraArgs = [] }) {
+    Object.assign(this, { name, dataDir, zingoBin, server, chain, python, extraArgs });
     this.queue = Promise.resolve();
     this.buf = "";
     this.listener = null;
     this.ready = false;
   }
 
+  /** Spawn zingo-cli and resolve once its first prompt appears. */
   start() {
     const args = [
-      "-I", BRIDGE, config.zingoBin,
-      "--chain", config.chain, "--server", config.indexer,
+      "-I", BRIDGE, this.zingoBin,
+      "--chain", this.chain, "--server", this.server,
       "--data-dir", this.dataDir, ...this.extraArgs,
     ];
-    this.proc = spawn(config.python, args, { stdio: ["pipe", "pipe", "pipe"] });
+    this.proc = spawn(this.python, args, { stdio: ["pipe", "pipe", "pipe"] });
     this.proc.stdout.setEncoding("utf8");
     this.proc.stdout.on("data", (chunk) => {
       this.buf += chunk;
