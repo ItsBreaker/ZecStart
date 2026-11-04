@@ -17,6 +17,10 @@ const MAX_LINE = 950;
 // no quote, backslash or control character. Anything else is refused, so
 // user input can never become a second command or a different argument.
 const GRAMMAR = /^([a-z_]+)((?: [A-Za-z0-9_]+)*)(?: "[^"\\\u0000-\u001f\u007f]*")?$/;
+// The one other shape allowed: a multi-output quicksend of exactly
+// '[{"address":"<lowercase alphanumeric>","amount":<integer>}, ...]'.
+const OUTPUT = '\\{"address":"[a-z0-9]{20,300}","amount":[0-9]{1,12}\\}';
+const MULTI_SEND = new RegExp(`^(quicksend) '\\[${OUTPUT}(?:,${OUTPUT}){0,9}\\]'$`);
 
 export class ZingoSession {
   /**
@@ -79,7 +83,7 @@ export class ZingoSession {
     if (Buffer.byteLength(command) > MAX_LINE) {
       return Promise.reject(new Error("command too long for the zingo-cli prompt"));
     }
-    const word = command.match(GRAMMAR)?.[1];
+    const word = (command.match(GRAMMAR) ?? command.match(MULTI_SEND))?.[1];
     if (!word) return Promise.reject(new Error(`${this.name}: refused a malformed command`));
     if (this.allow && !this.allow.has(word)) {
       return Promise.reject(new Error(`${this.name}: command "${word}" is not allowed`));

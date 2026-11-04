@@ -10,7 +10,6 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { config } from "./config.mjs";
 import { ZingoSession } from "../zingo/session.mjs";
-import { splitLearnerNotes } from "./split.mjs";
 import { ensureWallets } from "./bootstrap.mjs";
 import { parseBalance, parseError, parseHeight, parseTxids, parseValueTransfers, zats } from "../zingo/parse.mjs";
 
@@ -91,6 +90,7 @@ export function status() {
     learnerAddress: addresses.learner ?? null,
     learnerTransparentAddress: addresses.learnerTransparent ?? null,
     startError,
+    split: split && { running: split.running, made: split.made, target: split.target, txids: split.txids, error: split.error },
   };
 }
 
@@ -270,24 +270,42 @@ export function stopWallets() {
   return Promise.all(Object.values(s).map((x) => x.stop()));
 }
 
-/** Operator action: pause the learner session, split its notes, resume. */
-let splitting = false;
-export async function splitNotes(count) {
-  if (splitting) throw new Error("a split is already running");
-  splitting = true;
-  try {
-    // Let queued commands finish, then close the wallet so it can be opened directly.
-    await s.learner.run("height").catch(() => {});
-    await s.learner.stop();
-    try {
-      return await splitLearnerNotes(count);
-    } finally {
-      s.learner = session("learner", ALLOW.learner);
-      await s.learner.start();
-      await s.learner.run("settings min_confirmations 1");
+/**
+ * Operator action: split the learner's balance into many equal notes so many
+ * learners can send at once. Runs through the live session (no second
+ * process opens the wallet): multi-output self-sends, as many as current
+ * confirmed notes allow, then wait a block and repeat. Runs in the
+ * background; progress is reported on /health.
+ */
+let split = null;
+export function splitNotes(count) {
+  if (split?.running) throw new Error("a split is already running");
+  split = { running: true, target: count, made: 0, txids: [], error: null };
+  runSplit(count).catch((e) => { split.error = e.message; }).finally(() => { split.running = false; });
+  return { started: true, target: count };
+}
+
+async function runSplit(count) {
+  const bal = parseBalance(await s.learner.run("balance"));
+  const spendable = (bal.confirmed_ironwood_balance ?? 0) + (bal.confirmed_orchard_balance ?? 0);
+  // Keep ~3% back: the wallet computes each transaction's ZIP-317 fee itself.
+  const each = Math.floor((spendable * 0.97) / count);
+  if (each < 50_000) throw new Error(`balance ${spendable} zats is too small for ${count} notes`);
+  // As many outputs per transaction as fit on one zingo-cli input line.
+  const perTx = Math.max(1, Math.min(5, Math.floor(900 / (addresses.learner.length + 32))));
+  for (let round = 0; round < 8 && split.made < count; round++) {
+    while (split.made < count) {
+      const k = Math.min(perTx, count - split.made);
+      const outputs = JSON.stringify(Array.from({ length: k }, () => ({ address: addresses.learner, amount: each })));
+      const out = await s.learner.run(`quicksend '${outputs}'`, 120_000);
+      if (/insufficient balance/i.test(out)) break; // wait for change to confirm
+      split.txids.push(parseTxids(out));
+      split.made += k;
+    }
+    if (split.made < count) {
+      await new Promise((r) => setTimeout(r, 45_000));
       await s.learner.run("sync run");
     }
-  } finally {
-    splitting = false;
   }
+  console.log(`[split] ${split.made} notes of ${each} zats in ${split.txids.length} transactions`);
 }
