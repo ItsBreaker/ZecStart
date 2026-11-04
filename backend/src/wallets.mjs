@@ -41,6 +41,9 @@ export const addresses = {};
 export let journalistViewKey = "";
 let chainHeight = null;
 let learnerBalance = null;
+let startError = null;
+let timersStarted = false;
+export const setStartError = (message) => { startError = message; };
 
 // txid -> { watcher, sentAt, seenAt, confirmedAt, height }
 const tracked = new Map();
@@ -58,6 +61,9 @@ export async function startWallets() {
   // fits in about two minutes and change notes recycle faster.
   await s.learner.run("settings min_confirmations 1");
   for (const x of Object.values(s)) await x.run("sync run");
+  startError = null;
+  if (timersStarted) return console.log("[wallets] ready (restarted)");
+  timersStarted = true;
   setInterval(pollTracked, config.pollMs);
   const refreshBalance = async () => {
     try {
@@ -84,6 +90,7 @@ export function status() {
     // Public testnet addresses, so the operator can fund the learner wallet.
     learnerAddress: addresses.learner ?? null,
     learnerTransparentAddress: addresses.learnerTransparent ?? null,
+    startError,
   };
 }
 

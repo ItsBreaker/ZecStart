@@ -52,7 +52,7 @@ COPY --chown=app:app scripts ./scripts
 COPY --chmod=0755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 ENV NODE_ENV=production \
-    HOST=0.0.0.0 \
+    HOST=:: \
     PORT=8787 \
     ZINGO_BIN=/usr/local/bin/zingo-cli \
     PYTHON=python3 \

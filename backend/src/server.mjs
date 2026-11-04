@@ -147,12 +147,23 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(config.port, config.host, () => {
-  console.log(`[api] listening on http://${config.host}:${config.port}${config.apiBase}`);
+  const host = config.host.includes(":") ? `[${config.host}]` : config.host;
+  console.log(`[api] listening on http://${host}:${config.port}${config.apiBase}`);
 });
-w.startWallets().catch((e) => {
-  console.error("[wallets] failed to start:", e.message);
-  process.exit(1);
-});
+
+// Keep answering HTTP even if the wallets can't start, so /health can say
+// why; retry once a minute.
+async function startWalletsWithRetry() {
+  try {
+    await w.startWallets();
+  } catch (e) {
+    console.error("[wallets] failed to start:", e.message);
+    w.setStartError(e.message);
+    await w.stopWallets().catch(() => {});
+    setTimeout(startWalletsWithRetry, 60_000);
+  }
+}
+startWalletsWithRetry();
 
 for (const sig of ["SIGINT", "SIGTERM"]) {
   process.on(sig, () => {
