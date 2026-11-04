@@ -106,9 +106,34 @@ export function cleanMemo(memo) {
   return m;
 }
 
+// zingo-cli's connection to the light-wallet server can stall ("Timeout
+// expired"). A fresh session reconnects, so restart it and retry once.
+const TRANSPORT = /timeout expired|transport error|transmission failed|session is not running/i;
+const ALLOW_FOR = { learner: ALLOW.learner, friend: ALLOW.sender, journalist: ALLOW.sender, friendView: ALLOW.view, journalistView: ALLOW.viewSpendDemo };
+const restarting = {};
+export function restartSession(key) {
+  restarting[key] ??= (async () => {
+    console.error(`[${s[key].name}] restarting session after a light-wallet server timeout`);
+    await s[key].stop().catch(() => {});
+    s[key] = session(s[key].name, ALLOW_FOR[key]);
+    await s[key].start();
+    if (key === "learner") await s[key].run("settings min_confirmations 1");
+    await s[key].run("sync run");
+  })().finally(() => { delete restarting[key]; });
+  return restarting[key];
+}
+async function runHealing(key, cmd, timeoutMs) {
+  if (restarting[key]) await restarting[key];
+  const out = await s[key].run(cmd, timeoutMs).catch((e) => `Error: ${e.message}`);
+  const err = parseError(out) ?? (/sync error/i.test(out) ? out : "");
+  if (!TRANSPORT.test(err)) return out;
+  await restartSession(key);
+  return s[key].run(cmd, timeoutMs);
+}
+
 async function send(watcher, address, zats, memo) {
   const cmd = memo ? `quicksend ${address} ${zats} "${memo}"` : `quicksend ${address} ${zats}`;
-  const out = await s.learner.run(cmd, 120_000);
+  const out = await runHealing("learner", cmd, 120_000);
   let txid;
   try {
     txid = parseTxids(out);
@@ -138,7 +163,7 @@ export async function shield(depositTxid) {
   if ((bal.confirmed_transparent_balance ?? 0) === 0 && lastShield && dep?.confirmedAt && lastShield.at >= dep.confirmedAt) {
     return { txid: lastShield.txid, shared: true };
   }
-  const txid = parseTxids(await s.learner.run("quickshield", 120_000));
+  const txid = parseTxids(await runHealing("learner", "quickshield", 120_000));
   lastShield = { txid, at: Date.now() };
   tracked.set(txid, { watcher: "learner", sentAt: Date.now(), seenAt: null, confirmedAt: null, height: null });
   return { txid, shared: false };
@@ -180,7 +205,7 @@ async function pollTracked() {
     const pending = [...tracked.values()].filter((t) => !t.confirmedAt);
     const watchers = new Set(pending.map((t) => t.watcher));
     for (const w of watchers) {
-      await s[w].run("sync run");
+      await runHealing(w, "sync run", 60_000);
       const transfers = parseValueTransfers(await s[w].run("value_transfers", 30_000));
       const now = Date.now();
       for (const vt of transfers) {

@@ -138,7 +138,10 @@ const server = http.createServer(async (req, res) => {
     if (!e.friendly) console.error(`[${req.method} ${path}]`, e.message);
     let message = e.friendly ? e.message : "The testnet didn't respond as expected. Please try again.";
     // Every spare coin is waiting for a confirmation; one frees up each block.
-    if (/insufficient balance/i.test(e.message) && path !== "/fund/try-spend") {
+    if (/timeout expired|transport error|transmission failed|not running/i.test(e.message)) {
+      message = "The Zcash testnet server is slow to respond right now. Please retry in a few seconds.";
+      e.status = 503;
+    } else if (/insufficient balance/i.test(e.message) && path !== "/fund/try-spend") {
       message = "Lots of learners right now: our practice wallet's coins are all in flight. Please retry in about 30 seconds.";
       e.status = 503;
     }

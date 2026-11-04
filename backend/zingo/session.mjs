@@ -57,6 +57,7 @@ export class ZingoSession {
       this.listener?.();
     });
     this.proc.stderr.on("data", () => {});
+    this.proc.stdin.on("error", () => {}); // a write racing a restart must not crash the service
     this.proc.on("exit", (code) => {
       this.ready = false;
       console.error(`[${this.name}] zingo-cli exited (${code})`);
@@ -82,6 +83,9 @@ export class ZingoSession {
   run(command, timeoutMs = 60_000) {
     if (Buffer.byteLength(command) > MAX_LINE) {
       return Promise.reject(new Error("command too long for the zingo-cli prompt"));
+    }
+    if (!this.proc || this.proc.exitCode !== null) {
+      return Promise.reject(new Error(`${this.name}: session is not running`));
     }
     const word = (command.match(GRAMMAR) ?? command.match(MULTI_SEND))?.[1];
     if (!word) return Promise.reject(new Error(`${this.name}: refused a malformed command`));
