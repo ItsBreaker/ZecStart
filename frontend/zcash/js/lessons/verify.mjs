@@ -58,7 +58,11 @@ function showFund(root, f, mine, ctx) {
   );
 
   spend.addEventListener("click", () => runAction(spend, "Trying…", async () => {
-    const { error } = await api("/fund/try-spend", {});
+    const { error, noSpendCapability } = await api("/fund/try-spend", {});
+    if (!noSpendCapability) {
+      // The wallet only checks for a spending key once it has confirmed coins.
+      throw new Error("The fund's newest donations are still confirming, so the wallet hasn't reached the key check yet. Try again in a minute.");
+    }
     spend.remove();
     markDone("verify");
     track("step_finished", { lesson: ctx.lesson.n });

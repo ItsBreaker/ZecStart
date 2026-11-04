@@ -36,7 +36,7 @@ const routes = {
 
   // Activity 4: the fund's published viewing key and what it reveals.
   "GET /fund": async () => ({ viewingKey: w.journalistViewKey, ...(await w.fund()) }),
-  "POST /fund/try-spend": onchain(async () => ({ error: await w.trySpendWithViewKey() })),
+  "POST /fund/try-spend": onchain(async () => w.trySpendWithViewKey()),
 
   // What anyone can see on a public explorer, fetched server-side.
   "GET /explorer": async (_body, url) => explorerView(hex64(url.searchParams.get("txid"))),

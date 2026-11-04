@@ -113,10 +113,15 @@ export async function shield(depositTxid) {
   return { txid, shared: false };
 }
 
-/** A view-only wallet has no spending key; ask it to spend and report the error. */
+/**
+ * A view-only wallet has no spending key; ask it to spend and report the
+ * error. zingo only reaches the key check once the wallet has confirmed
+ * funds, so "insufficient balance" is reported separately, not as proof.
+ */
 export async function trySpendWithViewKey() {
   const out = await s.journalistView.run(`quicksend ${addresses.learner} 10000`, 60_000);
-  return parseError(out) ?? out.split("\n").slice(-3).join(" ");
+  const error = parseError(out) ?? out.split("\n").slice(-3).join(" ");
+  return { error, noSpendCapability: /no spend capability|no unified spending key/i.test(error) };
 }
 
 // ---------- watching ----------
@@ -215,15 +220,16 @@ export async function fund() {
  * wallet only reports "No spend capability" when there is something to spend.
  */
 const JOURNALIST_FLOAT = 300_000;
-const MIN_SWEEP = 100_000;
 export async function sweep() {
   // max_send_value is what the wallet could send after its own ZIP-317 fee,
   // so no fee is assumed here.
-  for (const [name, keep] of [["friend", 0], ["journalist", JOURNALIST_FLOAT]]) {
+  // The journalist is swept rarely: after a sweep its float is unconfirmed
+  // change for a few blocks, and the view-only demo needs confirmed coins.
+  for (const [name, keep, minSweep] of [["friend", 0, 100_000], ["journalist", JOURNALIST_FLOAT, 1_000_000]]) {
     const out = await s[name].run(`max_send_value ${addresses.learner}`);
     const max = zats(out.match(/([\d_]{3,})/)?.[1] ?? 0);
     const amount = max - keep;
-    if (amount < MIN_SWEEP) continue;
+    if (amount < minSweep) continue;
     const txid = parseTxids(await s[name].run(`quicksend ${addresses.learner} ${amount} "sweep"`, 120_000));
     console.log(`[sweep] ${name} -> learner ${amount} zats ${txid}`);
   }
