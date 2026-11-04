@@ -124,7 +124,7 @@ Full note: [PRIVACY.md](PRIVACY.md).
 
 - **Next milestone:** integrate Zec Start into [OnChain Education](https://onchaineducation.org), our hands-on blockchain education platform, as a Zcash privacy module for university students, and teach it to a class.
 - **Then:** an onboarding pathway that moves students from our custodial testnet wallets to their own wallets: first Noir Wallet's testnet extension, then their own wallet on mainnet.
-- **Who benefits:** university students learning blockchain on OnChain Education, most of whom have never made a shielded payment.
+- **Who benefits:** university students learning blockchain on OnChain Education.
 - **Already started:** `[LINKS: add any issue, PR, forum post or partner message here]`
 
 ## 8. Links
