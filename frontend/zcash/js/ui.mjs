@@ -61,7 +61,9 @@ export async function runAction(button, workingLabel, fn) {
 /** sent → seen → confirmed timeline with live seconds. */
 export function timeline(labels = ["Sent", "Seen by the receiving wallet", "Confirmed in a block"]) {
   const items = labels.map((l) => h("li", h("span.dot"), h("span", l), h("span.t")));
-  const el = h("ol.timeline", items);
+  const hint = h("p.small.muted.confirm-hint", { hidden: true },
+    "Testnet blocks arrive about every 25 seconds on average, but irregularly, so this step can take from a few seconds to a couple of minutes.");
+  const el = h("div", h("ol.timeline", items), hint);
   let t0 = Date.now();
   let timer = null;
   const set = (i, state, secs) => {
@@ -80,10 +82,14 @@ export function timeline(labels = ["Sent", "Seen by the receiving wallet", "Conf
       }, 500);
     },
     update(t) {
-      if (t.seenAfter != null) { set(1, "done", t.seenAfter); if (t.state !== "confirmed") set(2, "active"); }
+      if (t.seenAfter != null) {
+        set(1, "done", t.seenAfter);
+        if (t.state !== "confirmed") { set(2, "active"); hint.hidden = false; }
+      }
       if (t.state === "confirmed") {
         set(1, "done", t.seenAfter ?? t.confirmedAfter);
         set(2, "done", t.confirmedAfter);
+        hint.hidden = true;
         clearInterval(timer);
       }
     },

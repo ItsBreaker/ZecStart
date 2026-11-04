@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { config } from "./config.mjs";
 import { ZingoSession } from "../zingo/session.mjs";
 import { ensureWallets } from "./bootstrap.mjs";
+import { explorerView } from "./explorer.mjs";
 import { parseBalance, parseError, parseHeight, parseTxids, parseValueTransfers, zats } from "../zingo/parse.mjs";
 
 // Each session may run only the zingo-cli commands its role needs.
@@ -220,6 +221,15 @@ async function pollTracked() {
         }
       }
     }
+    // The indexer behind the explorer API usually sees a new block before the
+    // watcher wallet finishes syncing it, so a payment counts as confirmed as
+    // soon as either one has it in a block.
+    await Promise.all([...tracked.entries()]
+      .filter(([, t]) => t.seenAt && !t.confirmedAt)
+      .map(async ([id, t]) => {
+        const d = await explorerView(id, { maxAgeMs: 4000 }).catch(() => null);
+        if (d?.found && d.blockHeight && !t.confirmedAt) { t.confirmedAt = Date.now(); t.height = d.blockHeight; }
+      }));
     chainHeight = parseHeight(await s.learner.run("height")) ?? chainHeight;
     // Forget old entries so memory stays bounded.
     for (const [id, t] of tracked) if (Date.now() - t.sentAt > 6 * 3600_000) tracked.delete(id);

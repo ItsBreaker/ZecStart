@@ -9,9 +9,9 @@ export const EXPLORER_TX_URL = "https://testnet.zcashexplorer.app/transactions/{
 
 const cache = new Map(); // txid -> { at, data }
 
-export async function explorerView(txid) {
+export async function explorerView(txid, { maxAgeMs = 15_000 } = {}) {
   const hit = cache.get(txid);
-  if (hit && Date.now() - hit.at < 15_000) return hit.data;
+  if (hit && Date.now() - hit.at < maxAgeMs) return hit.data;
   const get = async (path) => {
     const res = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(10_000) });
     if (res.status === 404) return null;
